@@ -1,5 +1,8 @@
 const express = require("express");
-const exampleRouter = require("./routes/example");
+const multer = require("multer");
+//const upload = multer({ dest: "./public/data/uploads/" });
+
+const uploadRouter = require("./routes/uploadRouter");
 //require('dotenv').config();
 const cors = require("cors");
 const app = express();
@@ -7,9 +10,11 @@ app.use(cors());
 
 //app.use(express.urlencoded({ extended: false }));
 //app.use(express.json());
-//const path = require('path');
+const path = require("path");
 
-app.use("/", exampleRouter);
+app.use("/static", express.static(path.join(__dirname, "public")));
+console.log("dir", __dirname);
+app.use("/", uploadRouter);
 
 app.use((err, req, res, next) => {
   if (err.status === 404) {

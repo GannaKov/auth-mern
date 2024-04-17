@@ -4,21 +4,21 @@ import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import ContactPage from "./pages/ContactPage/ContactPage";
 import NotFound from "./pages/NotFound/NotFound";
-import UserMenu from "./components/UserMenu/UserMenu";
+
 import AppBar from "./components/AppBar/AppBar";
 
 import {
-  Form,
-  Link,
-  Outlet,
+  //   Form,
+  //   Link,
+  //   Outlet,
   RouterProvider,
   createBrowserRouter,
-  redirect,
-  useActionData,
-  useFetcher,
-  useLocation,
-  useNavigation,
-  useRouteLoaderData,
+  //   redirect,
+  //   useActionData,
+  //   useFetcher,
+  //   useLocation,
+  //   useNavigation,
+  //   useRouteLoaderData,
 } from "react-router-dom";
 
 const router = createBrowserRouter([
@@ -29,7 +29,7 @@ const router = createBrowserRouter([
     //   // Our root route always provides the user, if logged in
     //   return { user: fakeAuthProvider.username };
     // },
-    element: <AppBar isLoggedIn={false} />,
+    element: <AppBar isLoggedIn={true} />,
     errorElement: <NotFound />,
     children: [
       {

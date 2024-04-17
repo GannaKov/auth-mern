@@ -3,7 +3,7 @@ import { useState } from "react";
 
 const ContactPage = () => {
   const [imageUrl, setImageUrl] = useState("");
-
+  const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL;
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData();
@@ -36,7 +36,9 @@ const ContactPage = () => {
         </button>
       </form>
 
-      {imageUrl && <img src={imageUrl} alt="Uploaded Profile Pic" />}
+      {imageUrl && (
+        <img src={`${BACKEND_URL}/${imageUrl}`} alt="Uploaded Profile Pic" />
+      )}
     </div>
   );
 };

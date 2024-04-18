@@ -2,6 +2,7 @@ const express = require("express");
 const multerUtils = require("../utils/multerUtils");
 const fs = require("fs").promises;
 const path = require("path");
+const Image = require("../models/imageModel");
 
 uploadRouter = express.Router();
 uploadMultiRouter = express.Router();
@@ -31,7 +32,18 @@ uploadRouter.post(
       const fileName = path.join(storeImage, filename);
       await fs.rename(temporaryName, fileName);
 
-      res.json({ imageUrl: `images/${filename}` });
+      const newImage = new Image({
+        name: filename,
+        path: `images/${filename}`,
+      });
+      const result = await newImage.save();
+      console.log("res", result);
+      if (!result) {
+        throw { status: 500, message: "Failed to create image" };
+      }
+      res.status(201).json({ status: "Created ", code: 201, data: result });
+
+      //res.json({ imageUrl: `images/${filename}` });
     } catch (err) {
       if (err.status !== 400 && req.file) {
         await fs.unlink(temporaryName);

@@ -4,7 +4,7 @@ const fs = require("fs").promises;
 const path = require("path");
 
 uploadRouter = express.Router();
-
+uploadMultiRouter = express.Router();
 //const { postFiles } = require("../controllers/uploadFilesController");
 
 const createFolderIsNotExist = multerUtils.createFolderIsNotExist;
@@ -27,6 +27,7 @@ uploadRouter.post(
       }
       //const fileExtension = path.extname(originalname);
       const { path: temporaryName, filename } = req.file;
+      console.log(req.file);
       const fileName = path.join(storeImage, filename);
       await fs.rename(temporaryName, fileName);
 
@@ -40,4 +41,36 @@ uploadRouter.post(
   }
 );
 
-module.exports = uploadRouter;
+uploadMultiRouter.post(
+  "/",
+  upload.array("cat_pics", 3),
+  async (req, res, next) => {
+    try {
+      console.log(req.files);
+      if (!req.files) {
+        throw { status: 400, message: "Filews were not uploaded" };
+      }
+
+      const imagesArr = [];
+      //const fileExtension = path.extname(originalname);
+      for (let i = 0; i < req.files.length; i++) {
+        const { path: temporaryName, filename } = req.files[i];
+        const fileName = path.join(storeImage, filename);
+        await fs.rename(temporaryName, fileName);
+        imagesArr.push(`images/${filename}`);
+      }
+
+      console.log("array", imagesArr);
+
+      res.json({ imagesUrl: imagesArr });
+    } catch (err) {
+      if (err.status !== 400 && req.file) {
+        await fs.unlink(temporaryName);
+      }
+      return next(err);
+    }
+  }
+);
+//upload.array('photos', 5)
+
+module.exports = { uploadRouter, uploadMultiRouter };

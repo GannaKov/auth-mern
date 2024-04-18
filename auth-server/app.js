@@ -1,6 +1,7 @@
 const express = require("express");
 
-const uploadRouter = require("./routes/uploadRouter");
+const { uploadRouter } = require("./routes/uploadRouter");
+const { uploadMultiRouter } = require("./routes/uploadRouter");
 //require('dotenv').config();
 const cors = require("cors");
 const app = express();
@@ -13,6 +14,7 @@ const path = require("path");
 app.use("/images", express.static(path.join(__dirname, "images")));
 
 app.use("/", uploadRouter);
+app.use("/upload-cat-pics", uploadMultiRouter);
 
 app.use((err, req, res, next) => {
   if (err.status === 404) {

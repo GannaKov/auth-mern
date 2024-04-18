@@ -1,58 +1,21 @@
 const express = require("express");
-const path = require("path");
-const multer = require("multer");
-
-//const upload = multer({ dest: "uploads/" });
+const multerUtils = require("../utils/multerUtils");
 const fs = require("fs").promises;
-
-const uploadDir = path.join(process.cwd(), "uploads");
-const storeImage = path.join(process.cwd(), "images");
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
-  limits: {
-    fileSize: 1048576,
-  },
-});
-
-const upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    if (
-      file.mimetype == "image/png" ||
-      file.mimetype == "image/jpg" ||
-      file.mimetype == "image/jpeg"
-    ) {
-      cb(null, true);
-    } else {
-      cb(null, false);
-      return cb(new Error("Only .png, .jpg, .jpeg format allowed!"));
-    }
-  },
-});
+const path = require("path");
 
 uploadRouter = express.Router();
+
 //const { postFiles } = require("../controllers/uploadFilesController");
 
-const isAccessible = (path) => {
-  return fs
-    .access(path)
-    .then(() => true)
-    .catch(() => false);
-};
+const createFolderIsNotExist = multerUtils.createFolderIsNotExist;
 
-const createFolderIsNotExist = async (folder) => {
-  if (!(await isAccessible(folder))) {
-    await fs.mkdir(folder);
-  }
-};
-createFolderIsNotExist(uploadDir);
+const upload = multerUtils.upload;
+
+const storeImage = path.join(process.cwd(), "images");
+const uploadDir = path.join(process.cwd(), "uploads");
+
 createFolderIsNotExist(storeImage);
+createFolderIsNotExist(uploadDir);
 
 uploadRouter.post(
   "/upload-profile-pic",

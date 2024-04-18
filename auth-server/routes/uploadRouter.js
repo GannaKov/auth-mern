@@ -39,12 +39,15 @@ const createFolderIsNotExist = async (folder) => {
 };
 createFolderIsNotExist(uploadDir);
 createFolderIsNotExist(storeImage);
+
 uploadRouter.post(
   "/upload-profile-pic",
   upload.single("profile_pic"),
   async (req, res, next) => {
     const { path: temporaryName, originalname } = req.file;
     //const fileExtension = path.extname(originalname);
+    //const fileNameWithExtension = temporaryName + fileExtension;
+    //const imageUrl = path.join("images", fileNameWithExtension);
     const fileName = path.join(storeImage, originalname);
     try {
       await fs.rename(temporaryName, fileName);
@@ -54,12 +57,6 @@ uploadRouter.post(
       //     throw { status: 500, message: "Internal Server Error" };
       //   }
 
-      //const fileNameWithExtension = temporaryName + fileExtension;
-
-      //const imageUrl = path.join("images", fileNameWithExtension);
-
-      console.log("path", fileName);
-      //res.json({ imageUrl: `http://localhost:3000/images/${originalname}` });
       res.json({ imageUrl: `images/${originalname}` });
     } catch (err) {
       await fs.unlink(temporaryName);

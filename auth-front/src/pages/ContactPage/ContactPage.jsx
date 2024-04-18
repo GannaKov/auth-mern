@@ -4,16 +4,24 @@ import { useState } from "react";
 const ContactPage = () => {
   const [imageUrl, setImageUrl] = useState("");
   const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL;
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData();
+    console.log("FD", formData);
+    console.log("et", event.target.elements);
     formData.append("profile_pic", event.target.elements.profile_pic.files[0]);
     try {
       const response = await axios.post(
         "http://localhost:3000/upload-profile-pic",
-        formData
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
-      console.log("File uploaded successfully:", response);
+      console.log("res", response);
       setImageUrl(response.data.imageUrl);
     } catch (error) {
       console.error("Error uploading file:", error);

@@ -7,10 +7,14 @@ const ContactPage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    const fileInput = event.target.elements.profile_pic;
+    if (!fileInput || fileInput.files.length === 0) {
+      console.error("No file selected");
+      return;
+    }
     const formData = new FormData();
-    console.log("FD", formData);
-    console.log("et", event.target.elements);
-    formData.append("profile_pic", event.target.elements.profile_pic.files[0]);
+
+    formData.append("profile_pic", fileInput.files[0]);
     try {
       const response = await axios.post(
         "http://localhost:3000/upload-profile-pic",

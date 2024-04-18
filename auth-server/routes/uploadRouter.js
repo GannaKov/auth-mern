@@ -1,9 +1,10 @@
 const express = require("express");
+const path = require("path");
 const multer = require("multer");
 
 //const upload = multer({ dest: "uploads/" });
 const fs = require("fs").promises;
-const path = require("path");
+
 const uploadDir = path.join(process.cwd(), "uploads");
 const storeImage = path.join(process.cwd(), "images");
 
@@ -21,7 +22,20 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
+  fileFilter: (req, file, cb) => {
+    if (
+      file.mimetype == "image/png" ||
+      file.mimetype == "image/jpg" ||
+      file.mimetype == "image/jpeg"
+    ) {
+      cb(null, true);
+    } else {
+      cb(null, false);
+      return cb(new Error("Only .png, .jpg, .jpeg format allowed!"));
+    }
+  },
 });
+
 uploadRouter = express.Router();
 //const { postFiles } = require("../controllers/uploadFilesController");
 
@@ -44,22 +58,20 @@ uploadRouter.post(
   "/upload-profile-pic",
   upload.single("profile_pic"),
   async (req, res, next) => {
-    const { path: temporaryName, originalname } = req.file;
-    //const fileExtension = path.extname(originalname);
-    //const fileNameWithExtension = temporaryName + fileExtension;
-    //const imageUrl = path.join("images", fileNameWithExtension);
-    const fileName = path.join(storeImage, originalname);
     try {
+      if (!req.file) {
+        throw { status: 400, message: "File was not uploaded" };
+      }
+      //const fileExtension = path.extname(originalname);
+      const { path: temporaryName, filename } = req.file;
+      const fileName = path.join(storeImage, filename);
       await fs.rename(temporaryName, fileName);
-      //   if (err instanceof multer.MulterError) {
-      //     throw { status: 400, message: "MulterError: " + err.message };
-      //   } else if (err) {
-      //     throw { status: 500, message: "Internal Server Error" };
-      //   }
 
-      res.json({ imageUrl: `images/${originalname}` });
+      res.json({ imageUrl: `images/${filename}` });
     } catch (err) {
-      await fs.unlink(temporaryName);
+      if (err.status !== 400 && req.file) {
+        await fs.unlink(temporaryName);
+      }
       return next(err);
     }
   }

@@ -6,7 +6,7 @@ const Image = require("../models/imageModel");
 
 uploadRouter = express.Router();
 uploadMultiRouter = express.Router();
-//const { postFiles } = require("../controllers/uploadFilesController");
+getPiksRouter = express.Router();
 
 const createFolderIsNotExist = multerUtils.createFolderIsNotExist;
 
@@ -28,7 +28,7 @@ uploadRouter.post(
       }
       //const fileExtension = path.extname(originalname);
       const { path: temporaryName, filename } = req.file;
-      console.log(req.file);
+
       const fileName = path.join(storeImage, filename);
       await fs.rename(temporaryName, fileName);
 
@@ -37,7 +37,7 @@ uploadRouter.post(
         path: `images/${filename}`,
       });
       const result = await newImage.save();
-      console.log("res", result);
+
       if (!result) {
         throw { status: 500, message: "Failed to create image" };
       }
@@ -58,26 +58,33 @@ uploadMultiRouter.post(
   upload.array("cat_pics", 3),
   async (req, res, next) => {
     try {
-      console.log(req.files);
       if (!req.files) {
         throw { status: 400, message: "Filews were not uploaded" };
       }
 
       const imagesArr = [];
       //const fileExtension = path.extname(originalname);
+
       for (let i = 0; i < req.files.length; i++) {
         const { path: temporaryName, filename } = req.files[i];
         const fileName = path.join(storeImage, filename);
         await fs.rename(temporaryName, fileName);
-        imagesArr.push(`images/${filename}`);
+        //imagesArr.push(`images/${filename}`);
+        const newImage = new Image({
+          name: filename,
+          path: `images/${filename}`,
+        });
+        const result = await newImage.save();
+
+        imagesArr.push({ status: "Created", code: 201, data: result });
       }
 
-      console.log("array", imagesArr);
-
-      res.json({ imagesUrl: imagesArr });
+      res.status(201).json({ images: imagesArr });
     } catch (err) {
-      if (err.status !== 400 && req.file) {
-        await fs.unlink(temporaryName);
+      if (req.files) {
+        for (let i = 0; i < req.files.length; i++) {
+          await fs.unlink(req.files[i].path);
+        }
       }
       return next(err);
     }
@@ -85,4 +92,17 @@ uploadMultiRouter.post(
 );
 //upload.array('photos', 5)
 
-module.exports = { uploadRouter, uploadMultiRouter };
+getPiksRouter.get("/", async (req, res, next) => {
+  try {
+    const result = await Image.find();
+    res.status(200).json({
+      status: "success",
+      code: 200,
+      data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+module.exports = { uploadRouter, uploadMultiRouter, getPiksRouter };

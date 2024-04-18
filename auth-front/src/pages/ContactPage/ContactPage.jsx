@@ -2,10 +2,19 @@ import axios from "axios";
 import { useState } from "react";
 
 const ContactPage = () => {
-  const [imageUrl, setImageUrl] = useState("");
+  //const [imageUrl, setImageUrl] = useState("");
   const [imagesArrUrl, setImagesArrUrl] = useState([]);
   const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL;
-
+  //------------------
+  const handleAllPicsClick = async () => {
+    try {
+      const result = await axios.get("http://localhost:3000/get-pics");
+      console.log(result.data.data);
+      setImagesArrUrl(result.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   //------
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -29,7 +38,7 @@ const ContactPage = () => {
         }
       );
       console.log("res", response);
-      setImageUrl(response.data.imageUrl);
+      // setImageUrl(response.data.imageUrl);
     } catch (error) {
       console.error("Error uploading file:", error);
     }
@@ -61,7 +70,7 @@ const ContactPage = () => {
         }
       );
       console.log("res", response);
-      setImagesArrUrl(response.data.imagesUrl);
+      //setImagesArrUrl(response.data.imagesUrl);
     } catch (error) {
       console.error("Error uploading file:", error);
     }
@@ -83,18 +92,17 @@ const ContactPage = () => {
         </button>
       </form>
 
-      {imageUrl && (
+      {/* {imageUrl && (
         <img
           style={{ with: "400px" }}
           src={`${BACKEND_URL}/${imageUrl}`}
           alt="Uploaded Profile Pic"
         />
-      )}
+      )} */}
 
       <hr />
 
       <form
-        //action="/upload-cat-pics"
         encType="multipart/form-data"
         method="POST"
         onSubmit={handleMultiSubmit}
@@ -107,13 +115,17 @@ const ContactPage = () => {
           <input type="submit" value="Upload Cat Pics" />
         </div>
       </form>
-      <ul>
+
+      <button type="button" onClick={handleAllPicsClick}>
+        Get All Pics
+      </button>
+      <ul style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
         {imagesArrUrl.length > 0 &&
           imagesArrUrl.map((image) => (
-            <li key={image}>
+            <li key={image._id}>
               <img
-                style={{ with: "400px" }}
-                src={`${BACKEND_URL}/${image}`}
+                style={{ width: 200 }}
+                src={`${BACKEND_URL}/${image.path}`}
                 alt="Uploaded Cats Pics"
               />
             </li>
